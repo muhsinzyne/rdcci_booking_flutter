@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:rdcciappointment/models/branchListResponse.dart';
+import 'package:rdcciappointment/models/index.dart';
 import 'package:rdcciappointment/models/services/serviceListBranch.dart';
 
 class AppointmentServices {
@@ -29,6 +31,22 @@ class AppointmentServices {
     if (response.statusCode == 200) {
       final parsedJson = jsonDecode(response.body);
       return BranchListResponse.fromJson({"data": parsedJson});
+    } else {
+      throw Exception();
+    }
+  }
+
+  Future<TimeSlotResponse> getTimeSlots({@required branchId, @required date}) async {
+    http.Response response = await http.get(API + 'slot/GetSlotsByBranchResult?Id=' + branchId + '&date=' + date);
+    if (response.statusCode == 200) {
+      final parsedJson = jsonDecode(response.body);
+      if (parsedJson.length > 0) {
+        final TimeSlotResponse data = TimeSlotResponse.fromJson({"slots": parsedJson});
+        return data;
+      } else {
+        print("error gose");
+        return TimeSlotResponse.fromJson({});
+      }
     } else {
       throw Exception();
     }

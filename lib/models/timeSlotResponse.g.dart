@@ -7,12 +7,7 @@ part of 'timeSlotResponse.dart';
 // **************************************************************************
 
 TimeSlotResponse _$TimeSlotResponseFromJson(Map<String, dynamic> json) {
-  return TimeSlotResponse()
-    ..slots = (json['slots'] as List)
-        ?.map(
-            (e) => e == null ? null : Slot.fromJson(e as Map<String, dynamic>))
-        ?.toList();
+  return TimeSlotResponse()..slots = (json['slots'] as List)?.map((e) => e == null ? null : Slot.fromJson(e as Map<String, dynamic>))?.toList();
 }
 
-Map<String, dynamic> _$TimeSlotResponseToJson(TimeSlotResponse instance) =>
-    <String, dynamic>{'slots': instance.slots};
+Map<String, dynamic> _$TimeSlotResponseToJson(TimeSlotResponse instance) => <String, dynamic>{'slots': instance.slots};

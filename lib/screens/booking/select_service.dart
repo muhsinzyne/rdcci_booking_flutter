@@ -53,7 +53,9 @@ class _ServiceSelectScreenState extends State<ServiceSelectScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BookingScreen(),
+        builder: (context) => BookingScreen(
+          selectedBranch: this.widget.branchId,
+        ),
       ),
     );
   }

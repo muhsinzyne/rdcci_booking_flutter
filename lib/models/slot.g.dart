@@ -8,13 +8,9 @@ part of 'slot.dart';
 
 Slot _$SlotFromJson(Map<String, dynamic> json) {
   return Slot()
-    ..Date = json['Date'] as String
-    ..SlotDate = json['SlotDate'] as String
-    ..BookCount = json['BookCount'] as num;
+    ..date = json['Date'] as String
+    ..slotDate = json['SlotDate'] as String
+    ..bookCount = json['BookCount'] as num;
 }
 
-Map<String, dynamic> _$SlotToJson(Slot instance) => <String, dynamic>{
-      'Date': instance.Date,
-      'SlotDate': instance.SlotDate,
-      'BookCount': instance.BookCount
-    };
+Map<String, dynamic> _$SlotToJson(Slot instance) => <String, dynamic>{'Date': instance.date, 'SlotDate': instance.slotDate, 'BookCount': instance.bookCount};

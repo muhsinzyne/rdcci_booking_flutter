@@ -2,19 +2,28 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
 import 'package:rdcciappointment/localization/localization_const.dart';
+import 'package:rdcciappointment/models/index.dart';
 import 'package:rdcciappointment/screens/booking/pre_confimation_screen.dart';
 import 'package:rdcciappointment/services/appointment_service.dart';
 
 class BookingScreen extends StatefulWidget {
+  final int selectedBranch;
+
+  const BookingScreen({Key key, this.selectedBranch}) : super(key: key);
   @override
   _BookingScreenState createState() => _BookingScreenState();
 }
 
 class _BookingScreenState extends State<BookingScreen> {
   AppointmentServices appointmentServices = new AppointmentServices();
+  TimeSlotResponse timeSlotResponse;
   bool _timeSlotLoading = false;
   int selectedSlotId = 0;
+  String requestedDate = '';
+  var dateFormatter = new DateFormat('yyyy-MM-dd');
+  var timeFormat = DateFormat('Hm');
   List<dynamic> availableTimes = [
     {"id": 1, "slot": "10 AM", "availability": 10},
     {"id": 2, "slot": "11 AM", "availability": 10},
@@ -31,15 +40,16 @@ class _BookingScreenState extends State<BookingScreen> {
     setState(() {
       _timeSlotLoading = true;
     });
-    await Future.delayed(Duration(seconds: 2));
+
+    await this.timeSlotFetch();
     setState(() {
       _timeSlotLoading = false;
     });
   }
 
-  void _selectedSlot(dynamic cTime) {
+  void _selectedSlot(Slot cSlot) {
     setState(() {
-      selectedSlotId = cTime['id'];
+      selectedSlotId = cSlot.id;
     });
   }
 
@@ -55,11 +65,42 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   void initState() {
     super.initState();
+    this.initDate();
     this._loadClient();
   }
 
-  void _loadClient() {
+  void initDate() {
+    var now = DateTime.now();
+    String date = dateFormatter.format(now);
+    setState(() {
+      requestedDate = date;
+      //requestedDate = '2020-08-17';
+    });
+  }
+
+  void _loadClient() async {
     Future.delayed(Duration(microseconds: 500));
+    timeSlotFetch();
+  }
+
+  timeSlotFetch() async {
+    TimeSlotResponse response = await appointmentServices.getTimeSlots(branchId: this.widget.selectedBranch.toString(), date: requestedDate);
+    if (response.slots != null) {
+      if (response.slots.length > 0) {
+        setState(() {
+          timeSlotResponse = response;
+        });
+      } else {
+        setState(() {
+          timeSlotResponse.slots = [];
+        });
+      }
+    } else {
+      setState(() {
+        timeSlotResponse.slots = [];
+      });
+    }
+    return;
   }
 
   @override
@@ -78,40 +119,6 @@ class _BookingScreenState extends State<BookingScreen> {
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Column(
               children: <Widget>[
-//                Row(
-//                  children: <Widget>[
-//                    Expanded(
-//                      child: AutoSizeText(
-//                        'User Verification',
-//                        minFontSize: 20,
-//                        style: TextStyle(
-//                          color: Colors.black45,
-//                          fontWeight: FontWeight.bold,
-//                        ),
-//                      ),
-//                    ),
-//                  ],
-//                ),
-//                Container(
-//                  margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-//                  child: TextFormField(
-//                    decoration: InputDecoration(
-//                      labelText: "National ID / Iqama No",
-//                      contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
-//                      border: OutlineInputBorder(),
-//                    ),
-//                  ),
-//                ),
-//                Container(
-//                  margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-//                  child: TextFormField(
-//                    decoration: InputDecoration(
-//                      labelText: "Full Name",
-//                      contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
-//                      border: OutlineInputBorder(),
-//                    ),
-//                  ),
-//                ),
                 Container(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -150,7 +157,11 @@ class _BookingScreenState extends State<BookingScreen> {
                           selectedTextColor: Colors.white,
                           daysCount: 30,
                           onDateChange: (date) {
-                            print(date);
+                            var formatter = new DateFormat('yyyy-MM-dd');
+                            String changedDate = formatter.format(date);
+                            setState(() {
+                              requestedDate = changedDate;
+                            });
                             this._changedDate();
                             // New date selected
 //                          setState(() {
@@ -181,13 +192,19 @@ class _BookingScreenState extends State<BookingScreen> {
                             mainAxisSpacing: 20,
                             childAspectRatio: 2,
                           ),
-                          itemCount: this.availableTimes.length,
+                          itemCount: timeSlotResponse?.slots?.length ?? 0,
                           itemBuilder: (BuildContext context, int index) {
-                            var cTime = this.availableTimes[index];
+                            print(index);
+                            final Slot cSlot = timeSlotResponse.slots[index];
+                            cSlot.id = index;
+                            print(cSlot.slotDate);
+                            var parsedDate = DateTime.parse(cSlot.slotDate);
+                            final String bookingTime = timeFormat.format(parsedDate);
+                            //print(formatted);
                             return InkWell(
-                              onTap: cTime['availability'] > 0
+                              onTap: cSlot.bookCount == 0
                                   ? () {
-                                      this._selectedSlot(cTime);
+                                      this._selectedSlot(cSlot);
                                     }
                                   : null,
                               child: Container(
@@ -195,21 +212,21 @@ class _BookingScreenState extends State<BookingScreen> {
                                   borderRadius: BorderRadius.all(
                                     Radius.circular(15),
                                   ),
-                                  color: selectedSlotId == cTime['id'] ? Colors.green : Colors.white,
+                                  color: selectedSlotId == cSlot.id ? Colors.green : Colors.white,
                                 ),
                                 child: Row(
                                   children: <Widget>[
                                     Expanded(
                                       child: Container(
                                         child: AutoSizeText(
-                                          cTime['slot'],
+                                          bookingTime,
                                           minFontSize: 10,
                                           maxFontSize: 22,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                            color: selectedSlotId == cTime['id']
+                                            color: selectedSlotId == cSlot.id
                                                 ? Colors.white
-                                                : (cTime['availability'] > 1 ? Theme.of(context).primaryColor : Colors.red),
+                                                : (cSlot.bookCount == 0 ? Theme.of(context).primaryColor : Colors.red),
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
