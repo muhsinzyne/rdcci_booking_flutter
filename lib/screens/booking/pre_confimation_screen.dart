@@ -126,6 +126,11 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
               child: Column(
                 children: <Widget>[
                   CListItem(
+                    label: 'Service',
+                    value: 'Attestation',
+                  ),
+                  Divider(),
+                  CListItem(
                     label: 'ID No',
                     value: '2484081530',
                   ),

@@ -2,7 +2,8 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:rdcciappointment/localization/localization_const.dart';
 import 'package:rdcciappointment/main.dart';
-import 'package:rdcciappointment/screens/booking/department_selection.dart';
+import 'package:rdcciappointment/screens/booking/verify_visitor.dart';
+import 'package:rdcciappointment/screens/manage/verification.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -16,7 +17,16 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DepartmentSelectionScreen(),
+        builder: (context) => VerifyUserScreen(),
+      ),
+    );
+  }
+
+  void _manageAppointment() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VerifyIdentity(),
       ),
     );
   }
@@ -85,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Container(
                               margin: EdgeInsets.symmetric(horizontal: 5),
                               child: FlatButton(
-                                onPressed: _bookAnAppointment,
+                                onPressed: _manageAppointment,
                                 color: Colors.blue,
                                 child: Container(
                                   padding: EdgeInsets.symmetric(

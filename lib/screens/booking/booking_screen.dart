@@ -2,7 +2,9 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:rdcciappointment/localization/localization_const.dart';
 import 'package:rdcciappointment/screens/booking/pre_confimation_screen.dart';
+import 'package:rdcciappointment/services/appointment_service.dart';
 
 class BookingScreen extends StatefulWidget {
   @override
@@ -10,6 +12,7 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
+  AppointmentServices appointmentServices = new AppointmentServices();
   bool _timeSlotLoading = false;
   int selectedSlotId = 0;
   List<dynamic> availableTimes = [
@@ -50,14 +53,23 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    this._loadClient();
+  }
+
+  void _loadClient() {
+    Future.delayed(Duration(microseconds: 500));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xffeaeaea),
       appBar: AppBar(
-        title: Text(
-          'Appointment Booking',
-          //style: TextStyle(fontSize: 16),
-        ),
+        title: Text(getTranslate(context, 'appointment_booking')
+            //style: TextStyle(fontSize: 16),
+            ),
         elevation: 0,
       ),
       body: Container(
@@ -66,40 +78,40 @@ class _BookingScreenState extends State<BookingScreen> {
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             child: Column(
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: AutoSizeText(
-                        'User Verification',
-                        minFontSize: 20,
-                        style: TextStyle(
-                          color: Colors.black45,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: "National ID / Iqama No",
-                      contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: "Full Name",
-                      contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
+//                Row(
+//                  children: <Widget>[
+//                    Expanded(
+//                      child: AutoSizeText(
+//                        'User Verification',
+//                        minFontSize: 20,
+//                        style: TextStyle(
+//                          color: Colors.black45,
+//                          fontWeight: FontWeight.bold,
+//                        ),
+//                      ),
+//                    ),
+//                  ],
+//                ),
+//                Container(
+//                  margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+//                  child: TextFormField(
+//                    decoration: InputDecoration(
+//                      labelText: "National ID / Iqama No",
+//                      contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
+//                      border: OutlineInputBorder(),
+//                    ),
+//                  ),
+//                ),
+//                Container(
+//                  margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+//                  child: TextFormField(
+//                    decoration: InputDecoration(
+//                      labelText: "Full Name",
+//                      contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
+//                      border: OutlineInputBorder(),
+//                    ),
+//                  ),
+//                ),
                 Container(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +121,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           children: <Widget>[
                             Expanded(
                               child: AutoSizeText(
-                                'Appointment Information',
+                                getTranslate(context, 'appointment_information'),
                                 minFontSize: 20,
                                 style: TextStyle(
                                   color: Colors.black45,

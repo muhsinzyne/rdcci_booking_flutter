@@ -23,6 +23,12 @@ class MyApp extends StatefulWidget {
     state.updateLoader(value);
   }
 
+  static getCurrentLocal(BuildContext context) {
+    _MyAppState state = context.findAncestorStateOfType<_MyAppState>();
+    final Locale currentLocal = state.getCurrentLocal();
+    return currentLocal.languageCode;
+  }
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -41,6 +47,10 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       loader = value;
     });
+  }
+
+  Locale getCurrentLocal() {
+    return _locale;
   }
 
   @override
@@ -106,40 +116,3 @@ class _MyAppState extends State<MyApp> {
     }
   }
 }
-
-//return MaterialApp(
-//title: 'Flutter Demo',
-//locale: _locale,
-//supportedLocales: [
-//Locale('en', 'US'),
-//Locale('ar', 'SA'),
-//],
-//localizationsDelegates: [
-//DemoLocalizations.delegate,
-//GlobalMaterialLocalizations.delegate,
-//GlobalWidgetsLocalizations.delegate,
-//GlobalCupertinoLocalizations.delegate,
-//],
-//localeResolutionCallback: (deviceLocale, supportedLocales) {
-////        print(deviceLocale);
-//for (var locale in supportedLocales) {
-//if (locale == null || deviceLocale == null) {
-////return supportedLocales.first;
-//}
-////print(locale.countryCode);
-////print(deviceLocale.countryCode);
-//if (locale.languageCode == deviceLocale.languageCode && locale.countryCode == deviceLocale.countryCode) {
-//return deviceLocale;
-//}
-//}
-//
-//return supportedLocales.first;
-//},
-//theme: ThemeData(
-//primaryColor: Color(0xff3b5998),
-//primarySwatch: Colors.blue,
-//visualDensity: VisualDensity.comfortable,
-//),
-//debugShowCheckedModeBanner: false,
-//home: HomeScreen(),
-//);

@@ -1,6 +1,19 @@
 {
   "appointment": "Appointment",
   "manage": "Manage",
-  "powered_by": "Powered by Chamber of Commerce"
-
+  "powered_by": "Powered by Chamber of Commerce",
+  "user_verification": "User Verification",
+  "national_id_or_iqama": "National ID / Iqama No",
+  "first_name": "First Name",
+  "second_name": "Second Name",
+  "last_name": "Last Name",
+  "continue": "Continue",
+  "verify_identity": "Verify Identity",
+  "select_branch": "Select Branch",
+  "select_services": "Select Services",
+  "please_select_at_least_one_service" : "Please select at least one service",
+  "other_service_name_should_not_be_empty": "Other service name should not be empty",
+  "service_name": "Service Name",
+  "appointment_booking" : "Appointment Booking",
+  "appointment_information" : "Appointment Information"
 }
