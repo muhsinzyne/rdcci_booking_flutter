@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:ticket_pass_package/ticket_pass.dart';
 
 class BookingStatus extends StatefulWidget {
+  final int bookingID;
+  final String qrCodeLink;
+
+  const BookingStatus({Key key, this.bookingID, this.qrCodeLink}) : super(key: key);
   @override
   _BookingStatusState createState() => _BookingStatusState();
 }

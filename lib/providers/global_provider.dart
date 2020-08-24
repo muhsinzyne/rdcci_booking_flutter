@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:rdcciappointment/models/branch.dart';
 
 class GlobalProvider extends ChangeNotifier {
   GlobalProvider() {
     // constructor
     init();
+  }
+
+  Branch _selectedBranch;
+
+  Branch get selectedBranch => _selectedBranch;
+
+  set selectedBranch(Branch data) {
+    _selectedBranch = data;
+    notify();
   }
 
   bool _loader = false;

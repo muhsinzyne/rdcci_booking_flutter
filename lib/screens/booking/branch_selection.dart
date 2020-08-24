@@ -1,19 +1,28 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rdcciappointment/localization/localization_const.dart';
 import 'package:rdcciappointment/main.dart';
 import 'package:rdcciappointment/models/branch.dart';
 import 'package:rdcciappointment/models/branchListResponse.dart';
+import 'package:rdcciappointment/providers/global_provider.dart';
 import 'package:rdcciappointment/screens/booking/select_service.dart';
 import 'package:rdcciappointment/screens/components/loading_screen.dart';
 import 'package:rdcciappointment/services/appointment_service.dart';
 
 class BranchSelectionScreen extends StatefulWidget {
+  final String nationalId;
+  final String visitorName;
+  final String visitorEmail;
+
+  const BranchSelectionScreen({Key key, this.nationalId, this.visitorName, this.visitorEmail}) : super(key: key);
   @override
   _BranchSelectionScreenState createState() => _BranchSelectionScreenState();
 }
 
 class _BranchSelectionScreenState extends State<BranchSelectionScreen> {
+  GlobalProvider _globalProvider;
+
   String currentLanguage = 'en';
   AppointmentServices appointmentServices = new AppointmentServices();
   BranchListResponse branchListResponse;
@@ -22,6 +31,12 @@ class _BranchSelectionScreenState extends State<BranchSelectionScreen> {
   void initState() {
     super.initState();
     this._loadClient();
+  }
+
+  @override
+  void didChangeDependencies() {
+    _globalProvider = Provider.of<GlobalProvider>(context, listen: true);
+    super.didChangeDependencies();
   }
 
   void _loadClient() async {
@@ -33,13 +48,6 @@ class _BranchSelectionScreenState extends State<BranchSelectionScreen> {
       pageReady = true;
     });
   }
-
-  final List<dynamic> department = [
-    {"name": "Al Malaz Branch", "image": 'asset/images/computer.png', "address": "Salah El Din Street, Al Malaz"},
-    {"name": "National Products Branch", "image": 'asset/images/computer.png', "address": "King Abdullah Road, National Products Center"},
-    {"name": "Ministry of Commerce & Investment	", "image": 'asset/images/computer.png', "address": "Ministry of Commerce & Investment, Exit 6"},
-    {"name": "Riyadh Traffic Branch	", "image": 'asset/images/computer.png', "address": "Al Nasiriya"},
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +61,7 @@ class _BranchSelectionScreenState extends State<BranchSelectionScreen> {
               itemBuilder: (BuildContext context, int index) {
                 final Branch cBranch = this.branchListResponse.data[index];
                 print(cBranch);
-                final cItem = department[index];
+
                 //print(cItem);
                 return Column(
                   children: <Widget>[
@@ -76,11 +84,15 @@ class _BranchSelectionScreenState extends State<BranchSelectionScreen> {
                         maxFontSize: 16,
                       ),
                       onTap: () {
+                        _globalProvider.selectedBranch = cBranch;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ServiceSelectScreen(
                               branchId: cBranch.id,
+                              visitorEmail: this.widget.visitorEmail,
+                              visitorName: this.widget.visitorName,
+                              nationalId: this.widget.nationalId,
                             ),
                           ),
                         );

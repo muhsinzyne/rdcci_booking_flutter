@@ -12,8 +12,11 @@ import 'package:rdcciappointment/services/appointment_service.dart';
 
 class ServiceSelectScreen extends StatefulWidget {
   final num branchId;
+  final String nationalId;
+  final String visitorName;
+  final String visitorEmail;
 
-  const ServiceSelectScreen({Key key, this.branchId}) : super(key: key);
+  const ServiceSelectScreen({Key key, this.branchId, this.nationalId, this.visitorName, this.visitorEmail}) : super(key: key);
   @override
   _ServiceSelectScreenState createState() => _ServiceSelectScreenState();
 }
@@ -54,8 +57,11 @@ class _ServiceSelectScreenState extends State<ServiceSelectScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => BookingScreen(
-          selectedBranch: this.widget.branchId,
-        ),
+            selectedBranch: this.widget.branchId,
+            nationalId: this.widget.nationalId,
+            visitorEmail: this.widget.visitorEmail,
+            visitorName: this.widget.visitorName,
+            selectedServiceList: this.selectedServiceList),
       ),
     );
   }
@@ -127,6 +133,8 @@ class _ServiceSelectScreenState extends State<ServiceSelectScreen> {
   void otherValueChangeSet(Services service, String value) {
     service.otherValue = value;
     Services itemFromList = selectedServiceList.firstWhere((element) => element.id == service.id);
+    num key = selectedServiceList.indexWhere((element) => element.id == service.id);
+    selectedServiceList[key].otherValue = itemFromList.otherValue;
     setState(() {
       validToContinue();
     });

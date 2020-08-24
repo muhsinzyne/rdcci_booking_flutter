@@ -1,34 +1,148 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_overlay/loading_overlay.dart';
 import 'package:provider/provider.dart';
+import 'package:rdcciappointment/localization/localization_const.dart';
+import 'package:rdcciappointment/main.dart';
+import 'package:rdcciappointment/models/index.dart';
+import 'package:rdcciappointment/models/services/services.dart';
 import 'package:rdcciappointment/providers/global_provider.dart';
 import 'package:rdcciappointment/screens/animations/ui_animations.dart';
 import 'package:rdcciappointment/screens/booking/booking_status.dart';
+import 'package:rdcciappointment/services/appointment_service.dart';
 
 class PreConfirmationScreen extends StatefulWidget {
+  final String nationalId;
+  final String visitorName;
+  final String visitorEmail;
+  final List<dynamic> selectedServiceList;
+  final Slot selectedSlot;
+  const PreConfirmationScreen({Key key, this.nationalId, this.visitorName, this.visitorEmail, this.selectedServiceList, this.selectedSlot}) : super(key: key);
+
   @override
   _PreConfirmationScreenState createState() => _PreConfirmationScreenState();
 }
 
 class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
   GlobalProvider _globalProvider;
+  String currentLanguage = 'en';
+  var timeFormat = DateFormat('Hm');
+  var dateFormat = DateFormat.yMMMMd('en_US');
+  var parsedDate;
+  var bookingTime;
+  var bookingDate;
+  AppointmentServices appointmentServices = new AppointmentServices();
+
+  @override
+  void initState() {
+    super.initState();
+    this._loadClient();
+  }
+
   @override
   void didChangeDependencies() {
     _globalProvider = Provider.of<GlobalProvider>(context, listen: true);
     super.didChangeDependencies();
   }
 
+  void _loadClient() async {
+    currentLanguage = MyApp.getCurrentLocal(context);
+    parsedDate = DateTime.parse(this.widget.selectedSlot.slotDate);
+    bookingTime = timeFormat.format(parsedDate);
+    bookingDate = dateFormat.format(parsedDate);
+  }
+
   void _bookNow() async {
     _globalProvider.loader = true;
-    await Future.delayed(Duration(seconds: 3));
+    var bodyParams = this.getBodyObject();
+    var response = await appointmentServices.bookAppointment(bodyParams);
+    print(response);
+    if (response['Statuscode'] == 200) {
+      var bookingId = response['Data']['Id'];
+      var bookingQr = response['Data']['qrcodeval'];
+      print(response['Statuscode']);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => BookingStatus(bookingID: bookingId, qrCodeLink: bookingQr)),
+      );
+    } else if (response['Statuscode'] == '409') {
+      _showMyDialog('booking_slot_is_bit_rush_somebody_else_booked_this_slot').whenComplete(() {
+        print("completed");
+      });
+    } else {
+      _showMyDialog('booking_slot_is_bit_rush_somebody_else_booked_this_slot');
+    }
+
     _globalProvider.loader = false;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BookingStatus(),
-      ),
+  }
+
+  _showMyDialog(String stringValue) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(getTranslate(context, 'error')),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(getTranslate(context, 'your_booking_could_not_be_proceeded_due_to')),
+                Text(getTranslate(context, 'booking_slot_is_bit_rush_somebody_else_booked_this_slot')),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(getTranslate(context, 'ok')),
+              onPressed: () async {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        );
+      },
     );
+  }
+
+  dynamic getBodyObject() {
+    final Map<String, dynamic> bodyData = {
+      "NationalIdOrIQAMA": int.parse(this.widget.nationalId),
+      "BookingDate": '2020-09-09',
+      "BookingSlot": bookingTime,
+      "BranchAvailabilityTimeSlotId": 1,
+      "BranchId": _globalProvider.selectedBranch.id,
+      "Status": 1,
+      "English": currentLanguage == 'en' ? true : false,
+      "VisitorName": this.widget.visitorName,
+      "EmailAddress": this.widget.visitorEmail,
+      "Services": null
+    };
+    final List<dynamic> postServiceList = [];
+    for (int i = 0; i < this.widget.selectedServiceList.length; i++) {
+      final Services loopService = this.widget.selectedServiceList[i];
+      if (loopService.isOtherActivated == true) {
+        postServiceList.add({"ServiceId": loopService.id, "OtherServiceText": loopService.otherValue.toString()});
+      } else {
+        postServiceList.add({"ServiceId": loopService.id, "OtherServiceText": ''});
+      }
+    }
+    bodyData['Services'] = postServiceList;
+    return bodyData;
+  }
+
+  String convertServicesList() {
+    var serviceNameStrings = '';
+    this.widget.selectedServiceList.forEach((element) {
+      final Services loopService = element;
+      if (loopService.isOtherActivated == true) {
+        serviceNameStrings += loopService.otherValue;
+      } else {
+        serviceNameStrings += (currentLanguage == 'en') ? loopService.serviceNameEnglish : loopService.serviceNameArabic;
+      }
+      serviceNameStrings += '\n ';
+    });
+    return serviceNameStrings;
   }
 
   @override
@@ -38,7 +152,7 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
       child: Scaffold(
         backgroundColor: Theme.of(context).primaryColor,
         appBar: AppBar(
-          title: Text('Confirm Appointment'),
+          title: Text(getTranslate(context, 'confirm_appointment')),
           elevation: 0,
         ),
         body: getPageContents(),
@@ -63,9 +177,14 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
             Container(
               child: CircleAvatar(
                 backgroundColor: Colors.white,
-                child: Image.asset(
-                  'asset/images/speaking.png',
-                  fit: BoxFit.contain,
+                child: Padding(
+                  padding: EdgeInsets.all(10),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(80),
+                    child: Image.asset(
+                      'asset/images/logo.png',
+                    ),
+                  ),
                 ),
                 radius: 80,
               ),
@@ -85,24 +204,89 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
                       Radius.circular(12),
                     ),
                   ),
-                  height: 60,
+                  height: 150,
                   child: Container(
-                    child: Row(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Column(
                       children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            child: AutoSizeText(
-                              'Chamber for IT',
-                              textAlign: TextAlign.center,
-                              minFontSize: 18,
-                              maxFontSize: 24,
-                              style: TextStyle(
-                                color: Colors.black45,
-                                fontWeight: FontWeight.bold,
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Container(
+                                child: AutoSizeText(
+                                  currentLanguage == 'en' ? _globalProvider.selectedBranch.branchNameEnglish : _globalProvider.selectedBranch.branchNameArabic,
+                                  textAlign: TextAlign.center,
+                                  minFontSize: 18,
+                                  maxFontSize: 24,
+                                  style: TextStyle(
+                                    color: Colors.black45,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        )
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Container(
+                                margin: EdgeInsets.only(top: 10),
+                                child: AutoSizeText(
+                                  currentLanguage == 'en' ? _globalProvider.selectedBranch.addressEnglish : _globalProvider.selectedBranch.addressArabic,
+                                  textAlign: TextAlign.center,
+                                  minFontSize: 12,
+                                  maxFontSize: 18,
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    color: Colors.black45,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Container(
+                                margin: EdgeInsets.only(top: 10),
+                                child: AutoSizeText(
+                                  getTranslate(context, 'services'),
+                                  textAlign: TextAlign.center,
+                                  minFontSize: 12,
+                                  maxFontSize: 18,
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Container(
+                                margin: EdgeInsets.only(top: 10),
+                                child: AutoSizeText(
+                                  convertServicesList(),
+                                  textAlign: TextAlign.center,
+                                  minFontSize: 16,
+                                  maxFontSize: 20,
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    color: Colors.black45,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -126,28 +310,23 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
               child: Column(
                 children: <Widget>[
                   CListItem(
-                    label: 'Service',
-                    value: 'Attestation',
+                    label: getTranslate(context, 'id_number'),
+                    value: this.widget.nationalId,
                   ),
                   Divider(),
                   CListItem(
-                    label: 'ID No',
-                    value: '2484081530',
+                    label: getTranslate(context, 'full_name'),
+                    value: this.widget.visitorName,
                   ),
                   Divider(),
                   CListItem(
-                    label: 'Name',
-                    value: 'Muhammed Muhsin',
+                    label: getTranslate(context, 'date'),
+                    value: bookingDate ?? '',
                   ),
                   Divider(),
                   CListItem(
-                    label: 'Appointment Date',
-                    value: 'Sep 10 2020',
-                  ),
-                  Divider(),
-                  CListItem(
-                    label: 'Time Slot',
-                    value: '10 AM',
+                    label: getTranslate(context, 'time_slot'),
+                    value: bookingTime ?? '00:00',
                   ),
                   SizedBox(
                     height: 20,

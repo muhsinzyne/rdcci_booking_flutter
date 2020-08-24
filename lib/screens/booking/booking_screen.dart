@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:rdcciappointment/localization/localization_const.dart';
 import 'package:rdcciappointment/models/index.dart';
@@ -10,8 +11,12 @@ import 'package:rdcciappointment/services/appointment_service.dart';
 
 class BookingScreen extends StatefulWidget {
   final int selectedBranch;
+  final String nationalId;
+  final String visitorName;
+  final String visitorEmail;
+  final List<dynamic> selectedServiceList;
 
-  const BookingScreen({Key key, this.selectedBranch}) : super(key: key);
+  const BookingScreen({Key key, this.selectedBranch, this.nationalId, this.visitorName, this.visitorEmail, this.selectedServiceList}) : super(key: key);
   @override
   _BookingScreenState createState() => _BookingScreenState();
 }
@@ -19,24 +24,16 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   AppointmentServices appointmentServices = new AppointmentServices();
   TimeSlotResponse timeSlotResponse;
+  Slot selectedSlot;
   bool _timeSlotLoading = false;
-  int selectedSlotId = 0;
+  int selectedSlotId;
   String requestedDate = '';
   var dateFormatter = new DateFormat('yyyy-MM-dd');
   var timeFormat = DateFormat('Hm');
-  List<dynamic> availableTimes = [
-    {"id": 1, "slot": "10 AM", "availability": 10},
-    {"id": 2, "slot": "11 AM", "availability": 10},
-    {"id": 3, "slot": "12 PM", "availability": 0},
-    {"id": 4, "slot": "1.30 PM", "availability": 10},
-    {"id": 5, "slot": "2.30 PM", "availability": 1},
-    {"id": 6, "slot": "3.30 PM", "availability": 0},
-    {"id": 7, "slot": "4.30 PM", "availability": 5},
-    {"id": 8, "slot": "5.30 PM", "availability": 6},
-    {"id": 9, "slot": "6.30 PM", "availability": 3}
-  ];
 
   void _changedDate() async {
+    selectedSlotId = null;
+    selectedSlot = null;
     setState(() {
       _timeSlotLoading = true;
     });
@@ -50,16 +47,35 @@ class _BookingScreenState extends State<BookingScreen> {
   void _selectedSlot(Slot cSlot) {
     setState(() {
       selectedSlotId = cSlot.id;
+      selectedSlot = cSlot;
     });
   }
 
   void _proceedAppointment() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PreConfirmationScreen(),
-      ),
-    );
+    if (selectedSlotId != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PreConfirmationScreen(
+            selectedServiceList: this.widget.selectedServiceList,
+            visitorName: this.widget.visitorName,
+            visitorEmail: this.widget.visitorEmail,
+            nationalId: this.widget.nationalId,
+            selectedSlot: selectedSlot,
+          ),
+        ),
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: getTranslate(context, 'please_select_a_available_slot_to_continue'),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+    }
   }
 
   @override
@@ -276,8 +292,8 @@ class _BookingScreenState extends State<BookingScreen> {
                     //color: Colors.red,
                     height: 62,
                     child: FlatButton(
-                      onPressed: _proceedAppointment,
-                      color: Theme.of(context).primaryColor,
+                      onPressed: selectedSlotId != null ? _proceedAppointment : () {},
+                      color: selectedSlotId != null ? Theme.of(context).primaryColor : Colors.grey,
                       child: AutoSizeText(
                         'Proceed Appointment'.toUpperCase(),
                         minFontSize: 18,

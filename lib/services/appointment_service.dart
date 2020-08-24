@@ -51,4 +51,15 @@ class AppointmentServices {
       throw Exception();
     }
   }
+
+  bookAppointment(bodyObject) async {
+    http.Response response = await http.post(API + 'Booking', headers: {"Content-Type": "application/json"}, body: json.encode(bodyObject));
+    if (response.statusCode == 200) {
+      final parsedJson = jsonDecode(response.body);
+      return parsedJson;
+    } else {
+      final parsedJson = jsonDecode(response.body);
+      throw Exception();
+    }
+  }
 }
