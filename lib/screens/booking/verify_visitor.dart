@@ -1,7 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:intl/intl.dart';
 import 'package:rdcciappointment/localization/localization_const.dart';
+import 'package:rdcciappointment/models/validate_booking_id.dart';
 import 'package:rdcciappointment/screens/booking/branch_selection.dart';
+import 'package:rdcciappointment/services/appointment_service.dart';
 
 class VerifyUserScreen extends StatefulWidget {
   @override
@@ -9,18 +13,48 @@ class VerifyUserScreen extends StatefulWidget {
 }
 
 class _VerifyUserScreenState extends State<VerifyUserScreen> {
-  void _continueService() {
+  bool validatingId = false;
+  AppointmentServices appointmentServices = AppointmentServices();
+  ValidateBookingID validateBookingID;
+  String bookingDate = '';
+  String bookingSlot = '';
+  bool hasBooking = false;
+  var dateFormatter = new DateFormat.yMMMMd('en_US');
+  var timeFormat = DateFormat('Hm');
+
+  void _continueService() async {
     if (this._formKey.currentState.validate()) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BranchSelectionScreen(
-            nationalId: idNumberInput.text,
-            visitorName: (" ${firstName.text} ${secondName.text} ${lastName.text}"),
-            visitorEmail: email.text,
+      setState(() {
+        validatingId = true;
+      });
+      validateBookingID = await appointmentServices.validateBookingId(idNumberInput.text);
+      if (validateBookingID.id != null) {
+        setState(() {
+          hasBooking = true;
+          var parsedDate = DateTime.parse(validateBookingID.bookingDate);
+          bookingDate = dateFormatter.format(parsedDate);
+          bookingSlot = timeFormat.format(parsedDate);
+        });
+      } else {
+        setState(() {
+          hasBooking = false;
+        });
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BranchSelectionScreen(
+              nationalId: idNumberInput.text,
+              visitorName: (" ${firstName.text} ${secondName.text} ${lastName.text}"),
+              visitorEmail: email.text,
+            ),
           ),
-        ),
-      );
+        );
+      }
+      setState(() {
+        validatingId = false;
+      });
+      return;
     }
   }
 
@@ -157,6 +191,35 @@ class _VerifyUserScreenState extends State<VerifyUserScreen> {
                   validator: validateEmail,
                 ),
               ),
+              AnimatedSwitcher(
+                duration: Duration(seconds: 1),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(child: child, scale: animation);
+                },
+                child: hasBooking
+                    ? Container(
+                        margin: EdgeInsets.only(top: 50),
+                        width: double.maxFinite,
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        child: Column(
+                          children: <Widget>[
+                            AutoSizeText(
+                              getTranslate(context, 'you_have_an_existing_booking_for'),
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                            AutoSizeText(
+                              "$bookingDate " + getTranslate(context, 'at') + " $bookingSlot",
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            )
+                          ],
+                        ),
+                      )
+                    : Container(),
+              ),
             ],
           ),
         ),
@@ -175,15 +238,17 @@ class _VerifyUserScreenState extends State<VerifyUserScreen> {
                     child: FlatButton(
                       onPressed: _continueService,
                       color: Theme.of(context).primaryColor,
-                      child: AutoSizeText(
-                        getTranslate(context, 'continue'),
-                        minFontSize: 18,
-                        maxFontSize: 22,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: validatingId
+                          ? footerButtonLoading()
+                          : AutoSizeText(
+                              getTranslate(context, 'continue'),
+                              minFontSize: 18,
+                              maxFontSize: 22,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ),
                 )
@@ -192,6 +257,14 @@ class _VerifyUserScreenState extends State<VerifyUserScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget footerButtonLoading() {
+    return SpinKitWave(
+      color: Colors.white,
+      type: SpinKitWaveType.start,
+      size: 30,
     );
   }
 }
