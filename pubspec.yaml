@@ -43,6 +43,8 @@ dependencies:
   ticket_pass_package: ^0.1.0
   http: ^0.12.2
   fluttertoast: ^7.0.2
+  cached_network_image:
+
 
 
 

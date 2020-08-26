@@ -5,10 +5,12 @@ import 'package:loading_overlay/loading_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:rdcciappointment/localization/localization_const.dart';
 import 'package:rdcciappointment/main.dart';
+import 'package:rdcciappointment/models/booking_confirm/bookingResponse.dart';
 import 'package:rdcciappointment/models/index.dart';
 import 'package:rdcciappointment/models/services/services.dart';
 import 'package:rdcciappointment/providers/global_provider.dart';
 import 'package:rdcciappointment/screens/animations/ui_animations.dart';
+import 'package:rdcciappointment/screens/booking/booking_status.dart';
 import 'package:rdcciappointment/services/appointment_service.dart';
 
 class PreConfirmationScreen extends StatefulWidget {
@@ -56,24 +58,21 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
   void _bookNow() async {
     _globalProvider.loader = true;
     var bodyParams = this.getBodyObject();
-    var response = await appointmentServices.bookAppointment(bodyParams);
-    print(response);
-    if (response['Statuscode'] == 200) {
-//      var bookingId = response['Data']['Id'];
-//      var bookingQr = response['Data']['qrcodeval'];
-//      print(response['Statuscode']);
-//      Navigator.pushReplacement(
-//        context,
-//        MaterialPageRoute(builder: (context) => BookingStatus(bookingID: bookingId, qrCodeLink: bookingQr)),
-//      );
-    } else if (response['Statuscode'] == '409') {
-      _showMyDialog('booking_slot_is_bit_rush_somebody_else_booked_this_slot').whenComplete(() {
-        print("completed");
-      });
+    BookingResponse response = await appointmentServices.bookAppointment(bodyParams);
+    if (response.statusCode == 200) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BookingStatus(
+            bookingData: response.data,
+          ),
+        ),
+      );
+    } else if (response.statusCode == 409) {
+      _showMyDialog(response.statusMessage);
     } else {
-      _showMyDialog('booking_slot_is_bit_rush_somebody_else_booked_this_slot');
+      _showMyDialog(getTranslate(context, 'you_having_an_existing_booking_or_booking_slot_is_very_busy'));
     }
-
     _globalProvider.loader = false;
   }
 
@@ -88,7 +87,7 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
             child: ListBody(
               children: <Widget>[
                 Text(getTranslate(context, 'your_booking_could_not_be_proceeded_due_to')),
-                Text(getTranslate(context, 'booking_slot_is_bit_rush_somebody_else_booked_this_slot')),
+                Text(stringValue ?? ''),
               ],
             ),
           ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:rdcciappointment/models/booking_confirm/bookingResponse.dart';
 import 'package:rdcciappointment/models/branchListResponse.dart';
 import 'package:rdcciappointment/models/index.dart';
 import 'package:rdcciappointment/models/services/serviceListBranch.dart';
@@ -54,14 +55,16 @@ class AppointmentServices {
     }
   }
 
-  bookAppointment(bodyObject) async {
+  Future<BookingResponse> bookAppointment(bodyObject) async {
     print(bodyObject);
     http.Response response = await http.post(API + 'Booking', headers: {"Content-Type": "application/json"}, body: json.encode(bodyObject));
     if (response.statusCode == 200) {
       final parsedJson = jsonDecode(response.body);
-      return parsedJson;
+      print(response.body);
+      return BookingResponse.fromJson(parsedJson);
     } else {
       final parsedJson = jsonDecode(response.body);
+      return BookingResponse.fromJson({});
       throw Exception();
     }
   }
@@ -76,6 +79,18 @@ class AppointmentServices {
       }
       return ValidateBookingID.fromJSON({});
     } else {
+      throw Exception('Error in API Calll');
+    }
+  }
+
+  Future<bool> cancelAppointment(bodyObject) async {
+    http.Response response = await http.post(API + 'CancelAppointment', headers: {"Content-Type": "application/json"}, body: json.encode(bodyObject));
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      print(responseData);
+      return responseData;
+    } else {
+      return false;
       throw Exception('Error in API Calll');
     }
   }

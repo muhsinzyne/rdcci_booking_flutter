@@ -30,7 +30,18 @@
   "date": "Date",
   "error": "Error",
   "your_booking_could_not_be_proceeded_due_to": "Your booking could not be proceeded due to ",
+  "you_having_an_existing_booking_or_booking_slot_is_very_busy": "You having an existing booking or booking slot is very busy",
   "booking_slot_is_bit_rush_somebody_else_booked_this_slot": "Booking slot is bit rush, somebody else booked this slot. please try another slot",
   "ok": "OK",
-  "you_have_an_existing_booking_for": "You have an existing booking for"
+  "you_have_an_existing_booking_for": "You have an existing booking for",
+  "booking_status": "Booking Status",
+  "name": "Name",
+  "booking_date": "Booking Date",
+  "branch": "Branch",
+  "branch_address": "Branch Address",
+  "cancel_appointment": "Cancel Appointment",
+  "are_you_sure_to_cancel_this_booking" : "Are you sure to cancel this booking",
+  "once_you_are_canceled_the_booking_it_would_not_able_to_revert_back" : "Once you are canceled the booking IT would not able to revert back!",
+  "cancel": "Cancel",
+  "confirm" : "Confirm"
 }

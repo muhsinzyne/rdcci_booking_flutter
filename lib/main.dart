@@ -34,7 +34,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  GlobalProvider _globalProvider;
   Locale _locale;
   bool loader = false;
   void setLocale(Locale locale) {
@@ -90,13 +89,8 @@ class _MyAppState extends State<MyApp> {
             GlobalCupertinoLocalizations.delegate,
           ],
           localeResolutionCallback: (deviceLocale, supportedLocales) {
-//        print(deviceLocale);
             for (var locale in supportedLocales) {
-              if (locale == null || deviceLocale == null) {
-//return supportedLocales.first;
-              }
-//print(locale.countryCode);
-//print(deviceLocale.countryCode);
+              if (locale == null || deviceLocale == null) {}
               if (locale.languageCode == deviceLocale.languageCode && locale.countryCode == deviceLocale.countryCode) {
                 return deviceLocale;
               }
