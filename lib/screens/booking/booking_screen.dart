@@ -101,6 +101,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   timeSlotFetch() async {
     TimeSlotResponse response = await appointmentServices.getTimeSlots(branchId: this.widget.selectedBranch.toString(), date: requestedDate);
+
     if (response.slots != null) {
       if (response.slots.length > 0) {
         setState(() {
@@ -198,62 +199,64 @@ class _BookingScreenState extends State<BookingScreen> {
                           horizontal: 0,
                           vertical: 20,
                         ),
-                        child: GridView.builder(
-                          scrollDirection: Axis.vertical,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 5,
-                            mainAxisSpacing: 20,
-                            childAspectRatio: 2,
-                          ),
-                          itemCount: timeSlotResponse?.slots?.length ?? 0,
-                          itemBuilder: (BuildContext context, int index) {
-                            print(index);
-                            final Slot cSlot = timeSlotResponse.slots[index];
-                            cSlot.id = index;
-                            print(cSlot.slotDate);
-                            var parsedDate = DateTime.parse(cSlot.slotDate);
-                            final String bookingTime = timeFormat.format(parsedDate);
-                            //print(formatted);
-                            return InkWell(
-                              onTap: cSlot.bookCount == 0
-                                  ? () {
-                                      this._selectedSlot(cSlot);
-                                    }
-                                  : null,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(15),
-                                  ),
-                                  color: selectedSlotId == cSlot.id ? Colors.green : Colors.white,
+                        child: (timeSlotResponse?.slots?.length ?? 0) == 0
+                            ? noSlotsAvailable()
+                            : GridView.builder(
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4,
+                                  crossAxisSpacing: 5,
+                                  mainAxisSpacing: 20,
+                                  childAspectRatio: 2,
                                 ),
-                                child: Row(
-                                  children: <Widget>[
-                                    Expanded(
-                                      child: Container(
-                                        child: AutoSizeText(
-                                          bookingTime,
-                                          minFontSize: 10,
-                                          maxFontSize: 22,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: selectedSlotId == cSlot.id
-                                                ? Colors.white
-                                                : (cSlot.bookCount == 0 ? Theme.of(context).primaryColor : Colors.red),
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                itemCount: timeSlotResponse?.slots?.length ?? 0,
+                                itemBuilder: (BuildContext context, int index) {
+                                  print(index);
+                                  final Slot cSlot = timeSlotResponse.slots[index];
+                                  cSlot.id = index;
+                                  print(cSlot.slotDate);
+                                  var parsedDate = DateTime.parse(cSlot.slotDate);
+                                  final String bookingTime = timeFormat.format(parsedDate);
+                                  //print(formatted);
+                                  return InkWell(
+                                    onTap: cSlot.bookCount == 0
+                                        ? () {
+                                            this._selectedSlot(cSlot);
+                                          }
+                                        : null,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(15),
                                         ),
+                                        color: selectedSlotId == cSlot.id ? Colors.green : Colors.white,
+                                      ),
+                                      child: Row(
+                                        children: <Widget>[
+                                          Expanded(
+                                            child: Container(
+                                              child: AutoSizeText(
+                                                bookingTime,
+                                                minFontSize: 10,
+                                                maxFontSize: 22,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: selectedSlotId == cSlot.id
+                                                      ? Colors.white
+                                                      : (cSlot.bookCount == 0 ? Theme.of(context).primaryColor : Colors.red),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
-                            );
-                          },
-                        ),
                       ),
                       _timeSlotLoading
                           ? Positioned(
@@ -309,6 +312,18 @@ class _BookingScreenState extends State<BookingScreen> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget noSlotsAvailable() {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      child: Center(
+        child: AutoSizeText(
+          'No Slots available',
+          style: TextStyle(fontSize: 20, color: Colors.red),
         ),
       ),
     );

@@ -9,7 +9,6 @@ import 'package:rdcciappointment/models/index.dart';
 import 'package:rdcciappointment/models/services/services.dart';
 import 'package:rdcciappointment/providers/global_provider.dart';
 import 'package:rdcciappointment/screens/animations/ui_animations.dart';
-import 'package:rdcciappointment/screens/booking/booking_status.dart';
 import 'package:rdcciappointment/services/appointment_service.dart';
 
 class PreConfirmationScreen extends StatefulWidget {
@@ -29,6 +28,7 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
   String currentLanguage = 'en';
   var timeFormat = DateFormat('Hm');
   var dateFormat = DateFormat.yMMMMd('en_US');
+  var dbDateFormat = DateFormat('yyyy-MM-dd');
   var parsedDate;
   var bookingTime;
   var bookingDate;
@@ -59,13 +59,13 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
     var response = await appointmentServices.bookAppointment(bodyParams);
     print(response);
     if (response['Statuscode'] == 200) {
-      var bookingId = response['Data']['Id'];
-      var bookingQr = response['Data']['qrcodeval'];
-      print(response['Statuscode']);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => BookingStatus(bookingID: bookingId, qrCodeLink: bookingQr)),
-      );
+//      var bookingId = response['Data']['Id'];
+//      var bookingQr = response['Data']['qrcodeval'];
+//      print(response['Statuscode']);
+//      Navigator.pushReplacement(
+//        context,
+//        MaterialPageRoute(builder: (context) => BookingStatus(bookingID: bookingId, qrCodeLink: bookingQr)),
+//      );
     } else if (response['Statuscode'] == '409') {
       _showMyDialog('booking_slot_is_bit_rush_somebody_else_booked_this_slot').whenComplete(() {
         print("completed");
@@ -108,7 +108,7 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
   dynamic getBodyObject() {
     final Map<String, dynamic> bodyData = {
       "NationalIdOrIQAMA": int.parse(this.widget.nationalId),
-      "BookingDate": '2020-09-09',
+      "BookingDate": dbDateFormat.format(parsedDate),
       "BookingSlot": bookingTime,
       "BranchAvailabilityTimeSlotId": 1,
       "BranchId": _globalProvider.selectedBranch.id,

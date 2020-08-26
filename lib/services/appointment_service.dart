@@ -41,6 +41,7 @@ class AppointmentServices {
     http.Response response = await http.get(API + 'slot/GetSlotsByBranchResult?Id=' + branchId + '&date=' + date);
     if (response.statusCode == 200) {
       final parsedJson = jsonDecode(response.body);
+      print(parsedJson);
       if (parsedJson.length > 0) {
         final TimeSlotResponse data = TimeSlotResponse.fromJson({"slots": parsedJson});
         return data;
@@ -54,6 +55,7 @@ class AppointmentServices {
   }
 
   bookAppointment(bodyObject) async {
+    print(bodyObject);
     http.Response response = await http.post(API + 'Booking', headers: {"Content-Type": "application/json"}, body: json.encode(bodyObject));
     if (response.statusCode == 200) {
       final parsedJson = jsonDecode(response.body);

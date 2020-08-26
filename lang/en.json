@@ -31,5 +31,6 @@
   "error": "Error",
   "your_booking_could_not_be_proceeded_due_to": "Your booking could not be proceeded due to ",
   "booking_slot_is_bit_rush_somebody_else_booked_this_slot": "Booking slot is bit rush, somebody else booked this slot. please try another slot",
-  "ok": "OK"
+  "ok": "OK",
+  "you_have_an_existing_booking_for": "You have an existing booking for"
 }
