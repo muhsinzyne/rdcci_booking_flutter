@@ -203,7 +203,7 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
                       Radius.circular(12),
                     ),
                   ),
-                  height: 150,
+                  height: 180,
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Column(
@@ -341,7 +341,7 @@ class _PreConfirmationScreenState extends State<PreConfirmationScreen> {
                           Expanded(
                             child: Container(
                               child: AutoSizeText(
-                                'Book Now',
+                                getTranslate(context, 'book_now'),
                                 textAlign: TextAlign.center,
                                 minFontSize: 20,
                                 maxFontSize: 28,

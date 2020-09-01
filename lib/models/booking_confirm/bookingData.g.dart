@@ -20,7 +20,10 @@ BookingData _$BookingDataFromJson(Map<String, dynamic> json) {
     ..status = json['Status'] as num
     ..qrCode = json['qrcodeval'] as String
     ..bookingBranch = json['bookingBranch'] == null ? null : BookingBranch.fromJson(json['bookingBranch'] as Map<String, dynamic>)
-    ..bookingServices = (json['bookingServices'] as List)?.map((e) => e == null ? null : BookingServices.fromJson(e as Map<String, dynamic>))?.toList();
+    ..bookingServices = (json['bookingServices'] as List)?.map((e) => e == null ? null : BookingServices.fromJson(e as Map<String, dynamic>))?.toList()
+    ..bookingBranchArabic = json['BranchNameArabic'] as String
+    ..bookingBranchEnglish = json['BranchNameEnglish'] as String
+    ..services = (json['Services'] as List)?.map((e) => e == null ? null : BookingServices.fromJson(e as Map<String, dynamic>))?.toList();
 }
 
 Map<String, dynamic> _$BookingDataToJson(BookingData instance) => <String, dynamic>{
@@ -36,5 +39,8 @@ Map<String, dynamic> _$BookingDataToJson(BookingData instance) => <String, dynam
       'Status': instance.status,
       'qrcodeval': instance.qrCode,
       'bookingBranch': instance.bookingBranch,
-      'bookingServices': instance.bookingServices
+      'bookingServices': instance.bookingServices,
+      'bookingBranchArabic': instance.bookingBranchArabic,
+      'bookingBranchEnglish': instance.bookingBranchEnglish,
+      'services': instance.services
     };

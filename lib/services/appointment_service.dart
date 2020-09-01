@@ -70,7 +70,8 @@ class AppointmentServices {
   }
 
   Future<ValidateBookingID> validateBookingId(nationalId) async {
-    http.Response response = await http.get(API + 'Bookingdata/GetAppointmentBooking?NationalId_or_IQAMAId=' + nationalId);
+    http.Response response = await http.get(API + 'Bookingdata/GetAppointmentBookingCheckExist?NationalId_or_IQAMAId=' + nationalId);
+    print(response);
     if (response.statusCode == 200) {
       final parsedJson = jsonDecode(response.body);
       if (parsedJson != null) {
@@ -80,6 +81,21 @@ class AppointmentServices {
       return ValidateBookingID.fromJSON({});
     } else {
       throw Exception('Error in API Calll');
+    }
+  }
+
+  Future<BookingResponse> getBookingResponse(nationalId, emailId) async {
+    http.Response response = await http.get(API + 'AppointmentData/GetAppointmentBooking?NationalId_or_IQAMAId=' + nationalId + '&EmailAddress=' + emailId);
+    if (response.statusCode == 200) {
+      final parsedJson = jsonDecode(response.body);
+      if (parsedJson != null) {
+        BookingResponse bookingResponse = BookingResponse.fromJson({"Statuscode": 200, "StatusMessage": "", "Data": parsedJson});
+        return bookingResponse;
+      } else {
+        return BookingResponse.fromJson({});
+      }
+    } else {
+      throw Exception('Error in API call getBookingResponse');
     }
   }
 

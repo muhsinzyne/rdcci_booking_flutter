@@ -1,29 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:rdcciappointment/screens/manage/appointment_list.dart';
-
-final kHintTextStyle = TextStyle(
-  color: Colors.white54,
-  //fontFamily: 'OpenSans',
-);
-
-final kLabelStyle = TextStyle(
-  color: Colors.white,
-  fontWeight: FontWeight.bold,
-  //fontFamily: 'OpenSans',
-);
-
-final kBoxDecorationStyle = BoxDecoration(
-  color: Color(0xFF6CA8F1),
-  borderRadius: BorderRadius.circular(10.0),
-  boxShadow: [
-    BoxShadow(
-      color: Colors.black12,
-      blurRadius: 6.0,
-      offset: Offset(0, 2),
-    ),
-  ],
-);
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:rdcciappointment/localization/localization_const.dart';
+import 'package:rdcciappointment/models/booking_confirm/bookingResponse.dart';
+import 'package:rdcciappointment/screens/manage/appointment_status.dart';
+import 'package:rdcciappointment/screens/styles/general.dart';
+import 'package:rdcciappointment/services/appointment_service.dart';
 
 class VerifyIdentity extends StatefulWidget {
   @override
@@ -31,127 +12,138 @@ class VerifyIdentity extends StatefulWidget {
 }
 
 class _VerifyIdentityState extends State<VerifyIdentity> {
-  void _viewAppointments() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AppointmentList(),
-      ),
-    );
+  var idNumberInput = TextEditingController();
+  var emailInput = TextEditingController();
+  final _formKey2 = GlobalKey<FormState>();
+
+  AppointmentServices appointmentServices = new AppointmentServices();
+
+  String nationalIdValidator(String value) {
+    Pattern pattern = r'^(1|2)([0-9]{9})$';
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value))
+      return getTranslate(context, 'enter_valid_national_id_or_iqama');
+    else
+      return null;
   }
 
-  Widget _buildNationalDTF() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          'National ID / Iqama',
-          style: kLabelStyle,
-        ),
-        SizedBox(height: 10.0),
-        Container(
-          alignment: Alignment.centerLeft,
-          decoration: kBoxDecorationStyle,
-          height: 60.0,
-          child: TextField(
-            keyboardType: TextInputType.emailAddress,
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 17,
-            ),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.only(top: 14.0),
-              prefixIcon: Icon(
-                Icons.verified_user,
-                color: Colors.white,
-              ),
-              hintText: 'National ID / Iqama',
-              hintStyle: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 17,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
+  String validateEmail(String value) {
+    Pattern pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value))
+      return getTranslate(context, 'enter_valid_email');
+    else
+      return null;
   }
 
-  Widget _buildLoginBtn() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 25.0),
-      width: double.infinity,
-      child: RaisedButton(
-        elevation: 5.0,
-        onPressed: _viewAppointments,
-        padding: EdgeInsets.all(15.0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
-        ),
-        color: Colors.white,
-        child: Text(
-          'View Appointments',
-          style: TextStyle(
-            color: Color(0xFF527DAA),
-            letterSpacing: 1.5,
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'OpenSans',
+  void checkAppointment() async {
+    if (this._formKey2.currentState.validate()) {
+      BookingResponse response = await appointmentServices.getBookingResponse(this.idNumberInput.text, this.emailInput.text);
+      if (response.statusCode == 200) {
+        print(response.data.toJson());
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AppointmentStatusDetail(bookingData: response.data),
           ),
-        ),
-      ),
-    );
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: getTranslate(context, 'you_dont_have_any_booking_with_this_national_id_and_email'),
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 14.0,
+        );
+      }
+      //   BookingResponse response =
+    } else {
+      Fluttertoast.showToast(
+        msg: getTranslate(context, 'please_fill_the_required_information'),
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
+        title: Text(getTranslate(context, 'manage')),
       ),
-      body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.light,
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Stack(
+      body: Container(
+        padding: EdgeInsets.all(15),
+        child: Form(
+          key: _formKey2,
+          autovalidate: true,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Container(
-                height: double.infinity,
-                width: double.infinity,
-                decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+                margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                child: TextFormField(
+                  controller: idNumberInput,
+                  decoration: InputDecoration(
+                    labelText: getTranslate(context, 'national_id_or_iqama'),
+                    contentPadding: kInputContentPadding,
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    //formValidate();
+                  },
+                  validator: nationalIdValidator,
+                ),
+              ),
+              SizedBox(
+                height: 20,
               ),
               Container(
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 40.0,
-                    vertical: 50.0,
+                margin: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                child: TextFormField(
+                  controller: emailInput,
+                  decoration: InputDecoration(
+                    labelText: getTranslate(context, 'email'),
+                    contentPadding: kInputContentPadding,
+                    border: OutlineInputBorder(),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'Verify National ID',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 70.0),
-                      _buildNationalDTF(),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      _buildLoginBtn(),
-                    ],
+                  onChanged: (value) {
+                    //formValidate();
+                  },
+                  validator: validateEmail,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 50,
+                child: FlatButton(
+//                shape: new RoundedRectangleBorder(
+//                  borderRadius: new BorderRadius.circular(30.0),
+//                ),
+                  onPressed: checkAppointment,
+                  color: Theme.of(context).primaryColor,
+                  child: Text(
+                    getTranslate(context, 'check_appointment'),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                    ),
                   ),
                 ),
-              )
+              ),
+              SizedBox(
+                height: 100,
+              ),
             ],
           ),
         ),

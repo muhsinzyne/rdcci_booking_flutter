@@ -8,6 +8,7 @@ import 'package:rdcciappointment/models/services/serviceListBranch.dart';
 import 'package:rdcciappointment/models/services/services.dart';
 import 'package:rdcciappointment/screens/booking/booking_screen.dart';
 import 'package:rdcciappointment/screens/components/loading_screen.dart';
+import 'package:rdcciappointment/screens/styles/general.dart';
 import 'package:rdcciappointment/services/appointment_service.dart';
 
 class ServiceSelectScreen extends StatefulWidget {
@@ -246,7 +247,7 @@ class _ServiceSelectScreenState extends State<ServiceSelectScreen> {
                                                 child: TextFormField(
                                                   decoration: InputDecoration(
                                                     labelText: getTranslate(context, 'service_name'),
-                                                    contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
+                                                    contentPadding: kInputContentPadding,
                                                     border: OutlineInputBorder(),
                                                   ),
                                                   onChanged: (value) {
@@ -299,7 +300,7 @@ class _ServiceSelectScreenState extends State<ServiceSelectScreen> {
                       onPressed: validToContinue() ? _continueService : continueError,
                       color: (validToContinue() ? Theme.of(context).primaryColor : Colors.grey),
                       child: AutoSizeText(
-                        'Continue',
+                        getTranslate(context, 'continue'),
                         minFontSize: 18,
                         maxFontSize: 22,
                         style: TextStyle(

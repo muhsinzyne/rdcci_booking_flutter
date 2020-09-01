@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:rdcciappointment/localization/localization_const.dart';
 import 'package:rdcciappointment/models/validate_booking_id.dart';
 import 'package:rdcciappointment/screens/booking/branch_selection.dart';
+import 'package:rdcciappointment/screens/styles/general.dart';
 import 'package:rdcciappointment/services/appointment_service.dart';
 
 class VerifyUserScreen extends StatefulWidget {
@@ -127,7 +128,7 @@ class _VerifyUserScreenState extends State<VerifyUserScreen> {
                   controller: idNumberInput,
                   decoration: InputDecoration(
                     labelText: getTranslate(context, 'national_id_or_iqama'),
-                    contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
+                    contentPadding: kInputContentPadding,
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {
@@ -142,7 +143,7 @@ class _VerifyUserScreenState extends State<VerifyUserScreen> {
                   controller: firstName,
                   decoration: InputDecoration(
                     labelText: getTranslate(context, 'first_name'),
-                    contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
+                    contentPadding: kInputContentPadding,
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {},
@@ -155,7 +156,7 @@ class _VerifyUserScreenState extends State<VerifyUserScreen> {
                   controller: secondName,
                   decoration: InputDecoration(
                     labelText: getTranslate(context, 'second_name'),
-                    contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
+                    contentPadding: kInputContentPadding,
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) => value.isEmpty ? getTranslate(context, 'filed_can_not_be_blank') : null,
@@ -167,7 +168,7 @@ class _VerifyUserScreenState extends State<VerifyUserScreen> {
                   controller: lastName,
                   decoration: InputDecoration(
                     labelText: getTranslate(context, 'last_name'),
-                    contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
+                    contentPadding: kInputContentPadding,
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {
@@ -182,7 +183,7 @@ class _VerifyUserScreenState extends State<VerifyUserScreen> {
                   controller: email,
                   decoration: InputDecoration(
                     labelText: getTranslate(context, 'email'),
-                    contentPadding: EdgeInsets.only(bottom: -1, top: -5, left: 10),
+                    contentPadding: kInputContentPadding,
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {

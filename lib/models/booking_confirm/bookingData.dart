@@ -26,6 +26,12 @@ class BookingData {
   BookingBranch bookingBranch;
   List<BookingServices> bookingServices;
 
+  // optional
+
+  String bookingBranchArabic;
+  String bookingBranchEnglish;
+  List<BookingServices> services;
+
   String get formattedDate {
     var parsedDate = DateTime.parse(this.bookingDate);
     return dateFormat.format(parsedDate);
@@ -46,6 +52,21 @@ class BookingData {
           names += serviceItem.serviceNameArabic;
           names += ' \n';
         }
+      }
+    });
+    return names;
+  }
+
+  String serviceNameForManage(lang) {
+    var names = '';
+    this.services.forEach((element) {
+      BookingServices serviceItem = element;
+      if (lang == 'en') {
+        names += serviceItem.serviceNameEnglish;
+        names += ' \n';
+      } else {
+        names += serviceItem.serviceNameArabic;
+        names += ' \n';
       }
     });
     return names;

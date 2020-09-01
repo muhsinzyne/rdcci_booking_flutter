@@ -43,5 +43,13 @@
   "are_you_sure_to_cancel_this_booking" : "Are you sure to cancel this booking",
   "once_you_are_canceled_the_booking_it_would_not_able_to_revert_back" : "Once you are canceled the booking IT would not able to revert back!",
   "cancel": "Cancel",
-  "confirm" : "Confirm"
+  "confirm" : "Confirm",
+  "check_appointment" : "Check Appointment",
+  "please_fill_the_required_information" : "Please fill the required information",
+  "could_not_process_your_request" : "Could not process your request please try again after some time",
+  "you_dont_have_any_booking_with_this_national_id_and_email" : "You don't have any booking with this National ID and Email address",
+  "at" : "at",
+  "proceed_appointment" : "Proceed Appointment",
+  "no_slots_are_available": "No Slots are available",
+  "book_now" : "Book Now"
 }

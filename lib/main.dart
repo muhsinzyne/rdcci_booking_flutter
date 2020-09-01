@@ -36,6 +36,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   Locale _locale;
   bool loader = false;
+  bool appReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    this._appReadyState();
+  }
+
   void setLocale(Locale locale) {
     setState(() {
       _locale = locale;
@@ -62,12 +70,22 @@ class _MyAppState extends State<MyApp> {
     super.didChangeDependencies();
   }
 
+  void _appReadyState() async {
+    await Future.delayed(Duration(milliseconds: 1000));
+    setState(() {
+      appReady = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_locale == null) {
+    if (_locale == null || appReady == false) {
       return Container(
+        color: Theme.of(context).primaryColor,
         child: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            backgroundColor: Colors.white,
+          ),
         ),
       );
     } else {
@@ -91,8 +109,12 @@ class _MyAppState extends State<MyApp> {
           localeResolutionCallback: (deviceLocale, supportedLocales) {
             for (var locale in supportedLocales) {
               if (locale == null || deviceLocale == null) {}
-              if (locale.languageCode == deviceLocale.languageCode && locale.countryCode == deviceLocale.countryCode) {
-                return deviceLocale;
+              if (locale != null) {
+                if (locale.languageCode != null) {
+                  if (locale.languageCode == deviceLocale.languageCode && locale.countryCode == deviceLocale.countryCode) {
+                    return deviceLocale;
+                  }
+                }
               }
             }
 

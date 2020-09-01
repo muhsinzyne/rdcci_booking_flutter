@@ -298,7 +298,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       onPressed: selectedSlotId != null ? _proceedAppointment : () {},
                       color: selectedSlotId != null ? Theme.of(context).primaryColor : Colors.grey,
                       child: AutoSizeText(
-                        'Proceed Appointment'.toUpperCase(),
+                        getTranslate(context, 'proceed_appointment'),
                         minFontSize: 18,
                         maxFontSize: 22,
                         style: TextStyle(
@@ -322,7 +322,7 @@ class _BookingScreenState extends State<BookingScreen> {
       margin: EdgeInsets.only(top: 20),
       child: Center(
         child: AutoSizeText(
-          'No Slots available',
+          getTranslate(context, 'no_slots_are_available'),
           style: TextStyle(fontSize: 20, color: Colors.red),
         ),
       ),
